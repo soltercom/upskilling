@@ -64,6 +64,7 @@ public class DriverManagerDataSource implements DataSource {
 
     private void createConnectionPool(String url, String user, String pwd) {
         var config = new HikariConfig();
+        config.setAutoCommit(false);
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(pwd);
