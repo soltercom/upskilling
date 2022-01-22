@@ -10,8 +10,7 @@ dependencies {
         implementation 'org.flywaydb:flyway-core'
         implementation 'com.zaxxer:HikariCP'
         implementation 'org.postgresql:postgresql'
-        implementation 'org.slf4j:slf4j-api'
-        implementation 'org.slf4j:slf4j-simple'
+        implementation 'ch.qos.logback:logback-classic'
     }
 }
 

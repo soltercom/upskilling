@@ -1,7 +1,7 @@
 package homework.service;
 
-import homework.OrdersApp;
 import homework.db.TransactionRunner;
+import homework.model.OrderNotFound;
 import homework.repository.OrderItemRepository;
 import homework.repository.OrderRepository;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class OrderServiceImpl implements OrderService {
     public Long create(String userName) {
         var orderId =  transactionRunner.doInTransaction(connection ->
             orderRepo.createOrder(connection, userName));
-        logger.info("Created order: {0}, {1}", orderId, userName);
+        logger.info("Created order: {}, {}", orderId, userName);
         return orderId;
     }
 
@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     public Long addItem(Long orderId, String name, int count, BigDecimal price) {
         var orderItemId = transactionRunner.doInTransaction(connection ->
             orderItemRepo.addItem(connection, orderId, name, count, price));
-        logger.info("Order Item created: {0}, {1}, {2}", name, count, price);
+        logger.info("Order Item created: {}, {}, {}", name, count, price);
         return orderItemId;
     }
 
@@ -43,21 +43,24 @@ public class OrderServiceImpl implements OrderService {
     public void changeCount(Long orderId, Long orderItemId, int count) {
         transactionRunner.doInTransaction(connection ->
             orderItemRepo.changeCount(connection, orderId, orderItemId, count));
-        logger.info("Order Item {0} {1} changed count to {2}", orderId, orderItemId, count);
+        logger.info("Order Item {} {} changed count to {}", orderId, orderItemId, count);
     }
 
     @Override
     public void displayOrder(Long orderId) {
         var order = transactionRunner.doInTransaction(connection ->
-            orderRepo.getOrderById(connection, orderId));
+            orderRepo.getOrderById(connection, orderId))
+                .orElseThrow(() -> new OrderNotFound(orderId));
 
         var orderItemList = transactionRunner.doInTransaction(connection ->
             orderItemRepo.getOrderItemsList(connection, orderId));
 
         logger.info("======ORDER======");
-        logger.info(order.toString());
+        var orderInfo = order.toString();
+        logger.info(orderInfo);
         for (var orderItem: orderItemList) {
-            logger.info(orderItem.toString());
+            var orderItemInfo = orderItem.toString();
+            logger.info(orderItemInfo);
         }
         logger.info("=================");
 

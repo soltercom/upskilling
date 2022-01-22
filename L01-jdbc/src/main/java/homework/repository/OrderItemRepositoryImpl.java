@@ -33,7 +33,7 @@ public class OrderItemRepositoryImpl implements OrderItemRepository {
     @Override
     public Long changeCount(Connection connection, Long orderId, Long orderItemId, int count) {
         var sql = "UPDATE ORDERING_ITEMS SET item_count=? WHERE ordering_id=? AND id=?";
-        dbExecutor.executeStatement(connection, sql, List.of(count, orderItemId, orderId));
+        dbExecutor.executeStatement(connection, sql, List.of(count, orderId, orderItemId));
 
         sql = "UPDATE ORDERING SET updated_at = ? WHERE id = ?";
         dbExecutor.executeStatement(connection, sql, List.of(LocalDateTime.now(), orderId));
