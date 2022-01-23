@@ -11,6 +11,9 @@ dependencies {
         implementation 'com.zaxxer:HikariCP'
         implementation 'org.postgresql:postgresql'
         implementation 'ch.qos.logback:logback-classic'
+
+        testImplementation 'org.testcontainers:junit-jupiter'
+        testImplementation 'org.testcontainers:postgresql'
     }
 }
 
@@ -28,7 +31,3 @@ tasks.withType(JavaCompile) {
         encoding = 'UTF-8'
     }
 }
-
-
-//testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-//testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

@@ -1,6 +1,8 @@
 package homework.service;
 
 import homework.db.TransactionRunner;
+import homework.model.Order;
+import homework.model.OrderItem;
 import homework.model.OrderNotFound;
 import homework.repository.OrderItemRepository;
 import homework.repository.OrderRepository;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class OrderServiceImpl implements OrderService {
 
@@ -70,5 +73,19 @@ public class OrderServiceImpl implements OrderService {
     public void completeOrders() {
         transactionRunner.doInTransaction(orderRepo::completeOrders);
         logger.info("Orders completed");
+    }
+
+    // for test purpose only
+    @Override
+    public Order getOrderById(Long orderId) {
+        return transactionRunner.doInTransaction(connection ->
+                    orderRepo.getOrderById(connection, orderId))
+                .orElseThrow(() -> new OrderNotFound(orderId));
+    }
+
+    @Override
+    public List<OrderItem> getOrderList(Long orderId) {
+        return transactionRunner.doInTransaction(connection ->
+            orderItemRepo.getOrderItemsList(connection, orderId));
     }
 }
