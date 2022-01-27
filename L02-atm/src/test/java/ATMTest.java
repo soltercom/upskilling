@@ -11,7 +11,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ATMTest {
+class ATMTest {
 
     private ATM atm;
 
@@ -58,6 +58,14 @@ public class ATMTest {
 
          assertEquals(100 * 20 + 500 * 20 + 1000 * 20, atm.getBalance());
          assertEquals(expectedSize, atm.getSlots().size());
+
+         atm.take(100, 3);
+
+         assertEquals(100 * 23 + 500 * 20 + 1000 * 20, atm.getBalance());
+
+         atm.take(50, 5);
+
+        assertEquals(50 * 5 + 100 * 23 + 500 * 20 + 1000 * 20, atm.getBalance());
     }
 
     @Test

@@ -26,7 +26,7 @@ public class ATMServiceImpl implements ATMService {
     @Override
     public void give(long sum) throws OutOfMoney {
         logger.info("Before give balance = {}", atm.getBalance());
-        logger.info("taken = {}", sum);
+        logger.info("given = {}", sum);
         atm.give(sum);
         logger.info("After give balance = {}", atm.getBalance());
     }
