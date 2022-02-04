@@ -1,7 +1,7 @@
 import homework.exception.NegativeNominal;
 import homework.exception.NegativeQuantity;
 import homework.exception.OutOfMoney;
-import homework.model.ATM;
+import homework.model.ATMImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ATMTest {
 
-    private ATM atm;
+    private ATMImpl atm;
 
     @BeforeEach
     void init() {
-        atm = new ATM();
+        atm = new ATMImpl();
     }
 
     private void chargeATM() {

@@ -1,4 +1,4 @@
-import homework.model.ATM;
+import homework.model.ATMImpl;
 import homework.service.ATMService;
 import homework.service.ATMServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,7 @@ class ATMServiceImplTest {
 
     @BeforeEach
     void init() {
-        atmService = new ATMServiceImpl(new ATM());
+        atmService = new ATMServiceImpl(new ATMImpl());
     }
 
     @Test
