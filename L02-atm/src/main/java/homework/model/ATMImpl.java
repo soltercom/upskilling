@@ -1,99 +1,94 @@
 package homework.model;
 
-import homework.exception.NegativeNominal;
-import homework.exception.NegativeQuantity;
-import homework.exception.OutOfMoney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ATMImpl implements ATM {
 
+    private static final long LOW_BALANCE_LIMIT = 1000L;
+
     private static final Logger logger = LoggerFactory.getLogger(ATMImpl.class);
 
-    private final SortedSet<Slot> slots;
+    private final long id;
 
-    public ATMImpl() {
-        slots = new TreeSet<>(Comparator.comparingInt(Slot::getNominal).reversed());
+    private Storage storage;
+
+    private boolean isOnline;
+
+    private final List<LowBalanceListener> lowBalanceListeners;
+
+    public ATMImpl(long id) {
+        this.id = id;
+        this.storage = new StorageImpl();
+        this.isOnline = true;
+        this.lowBalanceListeners = new ArrayList<>();
     }
 
-    public void take(int nominal, int quantity) {
-        if (nominal <= 0) {
-            logger.error("Negative nominal {} entered", nominal);
-            throw new NegativeNominal();
-        }
-        if (quantity <= 0) {
-            logger.error("Negative quantity {} entered", quantity);
-            throw new NegativeQuantity();
-        }
-        var q = slots.stream()
-            .filter(s -> s.getNominal() == nominal)
-            .mapToInt(Slot::getQuantity).sum();
-        var slot = new Slot(nominal, q + quantity);
-        slots.remove(slot);
-        slots.add(slot);
-        logger.info("Slot {} quantity has changed from {} to {}", nominal, q, q + quantity);
-    }
-
-    private HashMap<Slot, Integer> prepareGive(long sum) {
-        var remainingSum = sum;
-        var writeOffMap = new HashMap<Slot, Integer>();
-
-        for (var slot: slots) {
-            if (remainingSum == 0) {
-                break;
-            }
-
-            if (slot.getNominal() <= remainingSum && slot.getQuantity() > 0) {
-                var q = (int) Math.min(slot.getQuantity(), remainingSum / slot.getNominal());
-                writeOffMap.put(slot, q);
-                remainingSum -= (long) q * slot.getNominal();
-            }
-        }
-
-        if (remainingSum > 0) {
-            throw new OutOfMoney();
-        }
-
-        return writeOffMap;
-    }
-
-    private void doGive(HashMap<Slot, Integer> map) {
-        for (var entry: map.entrySet()) {
-            var slot = entry.getKey();
-            var qBefore = slot.getQuantity();
-            var q = slot.getQuantity() - entry.getValue();
-
-            slots.remove(slot);
-            if (q > 0) {
-                slots.add(new Slot(slot.getNominal(), q));
-                logger.info("Slot {} quantity has changed from {} to {}", slot.getNominal(), qBefore, q);
-            } else {
-                logger.info("Slot {} is removed", slot.getNominal());
-            }
+    @Override
+    public void take(List<Banknote> banknoteList) {
+        storage.plus(banknoteList);
+        if (getBalance() < LOW_BALANCE_LIMIT) {
+            lowBalanceListeners.forEach(l -> l.onAction(getId()));
         }
     }
 
+    @Override
     public void give(long sum) {
-        if (sum <= 0) {
-            logger.error("Negative sum {} entered", sum);
-            throw new NegativeQuantity();
+        storage.give(sum);
+        if (getBalance() < LOW_BALANCE_LIMIT) {
+            lowBalanceListeners.forEach(l -> l.onAction(getId()));
         }
-
-        var map = prepareGive(sum);
-        doGive(map);
     }
 
+    @Override
     public long getBalance() {
-        return slots.stream()
-            .mapToLong(Slot::getBalance)
-            .sum();
+        return storage.getBalance();
     }
 
-    // for test purpose only
-    public SortedSet<Slot> getSlots() {
-        return Collections.unmodifiableSortedSet(slots);
+    @Override
+    public long getId() {
+        return id;
     }
 
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    @Override
+    public void online() {
+        isOnline = true;
+    }
+
+    @Override
+    public void offline() {
+        isOnline = false;
+    }
+
+    @Override
+    public void addListener(LowBalanceListener listener) {
+        lowBalanceListeners.add(listener);
+    }
+
+    @Override
+    public ATMState save() {
+        return new ATMState(storage.save(), isOnline);
+    }
+
+    @Override
+    public void restore(ATMState state) {
+        this.storage = new StorageImpl();
+        this.storage.restore(state.getStorage());
+        this.isOnline = state.isOnline();
+    }
+
+    @Override
+    public String toString() {
+        return "ATM {" +
+                "id=" + id +
+                ", isOnline=" + isOnline +
+                '}';
+    }
 }

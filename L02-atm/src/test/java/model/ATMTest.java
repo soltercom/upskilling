@@ -1,3 +1,5 @@
+package model;
+
 import homework.exception.NegativeNominal;
 import homework.exception.NegativeQuantity;
 import homework.exception.OutOfMoney;
@@ -13,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ATMTest {
 
-    private ATMImpl atm;
+/*    private ATMImpl atm;
 
     @BeforeEach
     void init() {
@@ -116,6 +118,6 @@ class ATMTest {
         var amount = atm.getBalance() + 1L;
 
         assertThrows(OutOfMoney.class, () -> atm.give(amount));
-    }
+    }*/
 
 }
