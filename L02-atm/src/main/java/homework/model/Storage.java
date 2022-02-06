@@ -2,12 +2,14 @@ package homework.model;
 
 import java.util.List;
 
-public interface Storage extends Savepoint<StorageState> {
+public interface Storage {
 
     void plus(List<Banknote> banknoteList);
 
     void give(long sum);
 
     long getBalance();
+
+    List<Banknote> getBanknoteList();
 
 }

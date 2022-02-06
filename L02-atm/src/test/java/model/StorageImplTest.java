@@ -136,4 +136,19 @@ class StorageImplTest {
             .isEqualTo(expectedSum);
     }
 
+    @Test
+    @DisplayName("#getBanknoteList() should return correct List<Banknote>")
+    void getBanknoteListTest() {
+        var storage = new StorageImpl();
+        var banknoteList = List.of(
+            new Banknote(1, Nominal.FIFTY),
+            new Banknote(2, Nominal.FIVE_HUNDREDS),
+            new Banknote(3, Nominal.FIVE_THOUSANDS));
+        storage.plus(banknoteList);
+
+        assertThat(storage.getBanknoteList())
+                .hasSize(3)
+                .containsAll(banknoteList);
+    }
+
 }

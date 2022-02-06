@@ -14,13 +14,13 @@ public class StorageImpl implements Storage {
 
     private static final Comparator<Nominal> comparator = Comparator.comparingInt(Nominal::getValue).reversed();
 
-    private SortedMap<Nominal, Slot> slots;
+    private final SortedMap<Nominal, Slot> slots;
 
     public StorageImpl() {
         slots = new TreeMap<>(comparator);
 
         for (var nominal: Nominal.values()) {
-            slots.put(nominal, new SlotImpl());
+            slots.put(nominal, Factory.createSlot());
         }
     }
 
@@ -48,6 +48,13 @@ public class StorageImpl implements Storage {
         return slots.entrySet().stream()
             .mapToLong(entry -> (long) entry.getKey().getValue() * entry.getValue().quantity())
             .sum();
+    }
+
+    @Override
+    public List<Banknote> getBanknoteList() {
+        return slots.values().stream()
+                .flatMap(slot -> slot.getBanknoteList().stream())
+                .toList();
     }
 
     private void plus(Banknote banknote) {
@@ -96,22 +103,4 @@ public class StorageImpl implements Storage {
         return writeOffMap;
     }
 
-    @Override
-    public StorageState save() {
-        var map = new EnumMap<Nominal, SlotState>(Nominal.class);
-        for (var entry: slots.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().save());
-        }
-        return new StorageState(map);
-    }
-
-    @Override
-    public void restore(StorageState state) {
-        slots = new TreeMap<>(comparator);
-        for (var entry: state.getSlots().entrySet()) {
-            var slot = new SlotImpl();
-            slot.restore(entry.getValue());
-            slots.put(entry.getKey(), slot);
-        }
-    }
 }

@@ -1,18 +1,20 @@
 package homework.model;
 
+import java.util.List;
+
 public class ATMState {
 
-    private final StorageState storage;
+    private final List<Banknote> banknoteList;
 
     private final boolean isOnline;
 
-    public ATMState(StorageState storage, boolean isOnline) {
-        this.storage = storage;
+    public ATMState(List<Banknote> banknoteList, boolean isOnline) {
+        this.banknoteList = banknoteList;
         this.isOnline = isOnline;
     }
 
-    public StorageState getStorage() {
-        return storage;
+    public List<Banknote> getBanknoteList() {
+        return banknoteList;
     }
 
     public boolean isOnline() {

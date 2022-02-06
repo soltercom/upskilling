@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ATMImpl implements ATM {
 
@@ -14,21 +15,30 @@ public class ATMImpl implements ATM {
 
     private final long id;
 
-    private Storage storage;
+    private final Storage storage;
 
     private boolean isOnline;
 
-    private final List<LowBalanceListener> lowBalanceListeners;
+    private final List<LowBalanceListener> lowBalanceListeners = new ArrayList<>();
 
     public ATMImpl(long id) {
+        logger.info("ATM {} create", id);
         this.id = id;
-        this.storage = new StorageImpl();
+        this.storage = Factory.createStorage();
         this.isOnline = true;
-        this.lowBalanceListeners = new ArrayList<>();
+    }
+
+    public ATMImpl(long id, ATMState state) {
+        logger.info("ATM {} restore from state", id);
+        this.id = id;
+        this.storage = Factory.createStorage();
+        this.isOnline = state.isOnline();
+        take(state.getBanknoteList());
     }
 
     @Override
     public void take(List<Banknote> banknoteList) {
+        logger.info("ATM {}", id);
         storage.plus(banknoteList);
         if (getBalance() < LOW_BALANCE_LIMIT) {
             lowBalanceListeners.forEach(l -> l.onAction(getId()));
@@ -38,6 +48,7 @@ public class ATMImpl implements ATM {
     @Override
     public void give(long sum) {
         storage.give(sum);
+        logger.info("ATM {}", id);
         if (getBalance() < LOW_BALANCE_LIMIT) {
             lowBalanceListeners.forEach(l -> l.onAction(getId()));
         }
@@ -60,11 +71,13 @@ public class ATMImpl implements ATM {
     @Override
     public void online() {
         isOnline = true;
+        logger.info("ATM {} sets Online", id);
     }
 
     @Override
     public void offline() {
         isOnline = false;
+        logger.info("ATM {} sets Offline", id);
     }
 
     @Override
@@ -74,14 +87,21 @@ public class ATMImpl implements ATM {
 
     @Override
     public ATMState save() {
-        return new ATMState(storage.save(), isOnline);
+        logger.info("ATM {} savepoint has made", id);
+        return new ATMState(storage.getBanknoteList(), isOnline());
     }
 
     @Override
-    public void restore(ATMState state) {
-        this.storage = new StorageImpl();
-        this.storage.restore(state.getStorage());
-        this.isOnline = state.isOnline();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ATMImpl)) return false;
+        ATMImpl atm = (ATMImpl) o;
+        return getId() == atm.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 
     @Override
@@ -91,4 +111,5 @@ public class ATMImpl implements ATM {
                 ", isOnline=" + isOnline +
                 '}';
     }
+
 }

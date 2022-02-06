@@ -4,15 +4,13 @@ import homework.exception.OutOfMoney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class SlotImpl implements Slot {
 
     private static final Logger logger = LoggerFactory.getLogger(SlotImpl.class);
 
-    private List<Banknote> banknoteList;
+    private final List<Banknote> banknoteList;
 
     public SlotImpl() {
         this.banknoteList = new LinkedList<>();
@@ -44,15 +42,8 @@ public class SlotImpl implements Slot {
     }
 
     @Override
-    public SlotState save() {
-        var state = new SlotState(banknoteList);
-        logger.info("Slot saved.");
-        return state;
+    public List<Banknote> getBanknoteList() {
+        return banknoteList.stream().toList();
     }
 
-    @Override
-    public void restore(SlotState state) {
-        this.banknoteList = new LinkedList<>(state.getBanknoteList());
-        logger.info("Slot restored.");
-    }
 }

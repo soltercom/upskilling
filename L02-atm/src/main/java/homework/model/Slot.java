@@ -1,11 +1,15 @@
 package homework.model;
 
-public interface Slot extends Savepoint<SlotState> {
+import java.util.List;
+
+public interface Slot {
 
     void add(Banknote banknote);
 
     void give(int quantity);
 
     int quantity();
+
+    List<Banknote> getBanknoteList();
 
 }

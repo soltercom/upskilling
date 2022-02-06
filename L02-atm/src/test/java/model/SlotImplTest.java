@@ -7,10 +7,12 @@ import homework.model.SlotImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-class SlotTest {
+class SlotImplTest {
 
     @Test
     @DisplayName("#add() null should throw exception")
@@ -53,6 +55,22 @@ class SlotTest {
         slot.give(1);
 
         assertThat(slot.quantity()).isZero();
+    }
+
+    @Test
+    @DisplayName("#getBanknoteList() should return List<Banknote>")
+    void getBanknoteListTest() {
+        var slot = new SlotImpl();
+        var banknoteList = List.of(
+            new Banknote(1, Nominal.FIFTY),
+            new Banknote(2, Nominal.FIFTY),
+            new Banknote(3, Nominal.FIFTY));
+
+        banknoteList.forEach(slot::add);
+
+        assertThat(slot.getBanknoteList())
+            .hasSize(3)
+            .containsAll(banknoteList);
     }
 
 }

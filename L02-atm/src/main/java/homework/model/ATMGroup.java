@@ -2,7 +2,7 @@ package homework.model;
 
 public interface ATMGroup {
 
-    void addATM(long id);
+    void addATM(ATM atm);
 
     void save();
 
