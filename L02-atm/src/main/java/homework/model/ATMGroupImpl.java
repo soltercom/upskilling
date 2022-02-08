@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ATMGroupImpl implements ATMGroup, LowBalanceListener {
+public class ATMGroupImpl implements ATMGroup {
 
     private static final Logger logger = LoggerFactory.getLogger(ATMGroupImpl.class);
 
@@ -29,7 +29,6 @@ public class ATMGroupImpl implements ATMGroup, LowBalanceListener {
     public void addATM(ATM atm) {
         group.put(atm.getId(), atm);
         cmd.addReceiver(atm);
-        atm.addListener(this);
     }
 
     @Override
@@ -77,9 +76,4 @@ public class ATMGroupImpl implements ATMGroup, LowBalanceListener {
             .getBalance();
     }
 
-    @Override
-    public void onAction(long id) {
-        var balance = getBalance(id);
-        logger.info("ATM {} has low balance: {}", id, balance);
-    }
 }

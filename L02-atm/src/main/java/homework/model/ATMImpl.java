@@ -3,13 +3,11 @@ package homework.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ATMImpl implements ATM {
 
-    private static final long LOW_BALANCE_LIMIT = 1000L;
+    private final Map<LowBalanceListener, Long> limitMap = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(ATMImpl.class);
 
@@ -18,8 +16,6 @@ public class ATMImpl implements ATM {
     private final Storage storage;
 
     private boolean isOnline;
-
-    private final List<LowBalanceListener> lowBalanceListeners = new ArrayList<>();
 
     public ATMImpl(long id) {
         logger.info("ATM {} create", id);
@@ -40,18 +36,24 @@ public class ATMImpl implements ATM {
     public void take(List<Banknote> banknoteList) {
         logger.info("ATM {}", id);
         storage.plus(banknoteList);
-        if (getBalance() < LOW_BALANCE_LIMIT) {
-            lowBalanceListeners.forEach(l -> l.onAction(getId()));
-        }
     }
 
     @Override
     public void give(long sum) {
         storage.give(sum);
         logger.info("ATM {}", id);
-        if (getBalance() < LOW_BALANCE_LIMIT) {
-            lowBalanceListeners.forEach(l -> l.onAction(getId()));
+
+        var currentBalance = getBalance();
+        for (var entry: limitMap.entrySet()) {
+            if (entry.getValue() > currentBalance) {
+                try {
+                    entry.getKey().onAction(getId(), currentBalance);
+                } catch (RuntimeException ex) {
+                    logger.error("ATM Exception", ex);
+                }
+            }
         }
+
     }
 
     @Override
@@ -81,8 +83,8 @@ public class ATMImpl implements ATM {
     }
 
     @Override
-    public void addListener(LowBalanceListener listener) {
-        lowBalanceListeners.add(listener);
+    public void addListener(LowBalanceListener listener, long limit) {
+        limitMap.put(listener, limit);
     }
 
     @Override

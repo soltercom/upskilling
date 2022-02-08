@@ -2,6 +2,6 @@ package homework.model;
 
 public interface LowBalanceListener {
 
-    void onAction(long id);
+    void onAction(long idAtm, long balance);
 
 }

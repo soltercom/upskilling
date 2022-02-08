@@ -16,6 +16,6 @@ public interface ATM extends Savepoint<ATMState> {
 
     void offline();
 
-    void addListener(LowBalanceListener listener);
+    void addListener(LowBalanceListener listener, long limit);
 
 }
