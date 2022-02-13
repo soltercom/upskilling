@@ -1,11 +1,21 @@
 package homework.model;
 
-public interface ATM {
+import java.util.List;
 
-    void take(int nominal, int quantity);
+public interface ATM extends Savepoint<ATMState> {
+
+    void take(List<Banknote> banknoteList);
 
     void give(long sum);
 
     long getBalance();
+
+    long getId();
+
+    void online();
+
+    void offline();
+
+    void addListener(LowBalanceListener listener, long limit);
 
 }

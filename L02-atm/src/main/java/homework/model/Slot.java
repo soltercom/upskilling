@@ -1,43 +1,15 @@
 package homework.model;
 
-import java.util.Objects;
+import java.util.List;
 
-public class Slot {
+public interface Slot {
 
-    private final int nominal;
-    private final int quantity;
+    void add(Banknote banknote);
 
-    public Slot(int nominal, int quantity) {
-        this.nominal = nominal;
-        this.quantity = quantity;
-    }
+    void give(int quantity);
 
-    public int getNominal() {
-        return nominal;
-    }
+    int quantity();
 
-    public int getQuantity() {
-        return quantity;
-    }
+    List<Banknote> getBanknoteList();
 
-    public long getBalance() {
-        return (long) nominal * quantity;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Slot slot)) return false;
-        return getNominal() == slot.getNominal();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getNominal());
-    }
-
-    @Override
-    public String toString() {
-        return "{" + nominal + "$ = " + quantity + '}';
-    }
 }

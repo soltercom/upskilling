@@ -1,8 +1,5 @@
 package homework.model;
 
-import homework.exception.NegativeNominal;
-import homework.exception.NegativeQuantity;
-import homework.exception.OutOfMoney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,90 +7,111 @@ import java.util.*;
 
 public class ATMImpl implements ATM {
 
+    private final Map<LowBalanceListener, Long> limitMap = new HashMap<>();
+
     private static final Logger logger = LoggerFactory.getLogger(ATMImpl.class);
 
-    private final SortedSet<Slot> slots;
+    private final long id;
 
-    public ATMImpl() {
-        slots = new TreeSet<>(Comparator.comparingInt(Slot::getNominal).reversed());
+    private final Storage storage;
+
+    private boolean isOnline;
+
+    public ATMImpl(long id) {
+        logger.info("ATM {} create", id);
+        this.id = id;
+        this.storage = Factory.createStorage();
+        this.isOnline = true;
     }
 
-    public void take(int nominal, int quantity) {
-        if (nominal <= 0) {
-            logger.error("Negative nominal {} entered", nominal);
-            throw new NegativeNominal();
-        }
-        if (quantity <= 0) {
-            logger.error("Negative quantity {} entered", quantity);
-            throw new NegativeQuantity();
-        }
-        var q = slots.stream()
-            .filter(s -> s.getNominal() == nominal)
-            .mapToInt(Slot::getQuantity).sum();
-        var slot = new Slot(nominal, q + quantity);
-        slots.remove(slot);
-        slots.add(slot);
-        logger.info("Slot {} quantity has changed from {} to {}", nominal, q, q + quantity);
+    public ATMImpl(long id, ATMState state) {
+        logger.info("ATM {} restore from state", id);
+        this.id = id;
+        this.storage = Factory.createStorage();
+        this.isOnline = state.isOnline();
+        take(state.getBanknoteList());
     }
 
-    private HashMap<Slot, Integer> prepareGive(long sum) {
-        var remainingSum = sum;
-        var writeOffMap = new HashMap<Slot, Integer>();
-
-        for (var slot: slots) {
-            if (remainingSum == 0) {
-                break;
-            }
-
-            if (slot.getNominal() <= remainingSum && slot.getQuantity() > 0) {
-                var q = (int) Math.min(slot.getQuantity(), remainingSum / slot.getNominal());
-                writeOffMap.put(slot, q);
-                remainingSum -= (long) q * slot.getNominal();
-            }
-        }
-
-        if (remainingSum > 0) {
-            throw new OutOfMoney();
-        }
-
-        return writeOffMap;
+    @Override
+    public void take(List<Banknote> banknoteList) {
+        logger.info("ATM {}", id);
+        storage.plus(banknoteList);
     }
 
-    private void doGive(HashMap<Slot, Integer> map) {
-        for (var entry: map.entrySet()) {
-            var slot = entry.getKey();
-            var qBefore = slot.getQuantity();
-            var q = slot.getQuantity() - entry.getValue();
-
-            slots.remove(slot);
-            if (q > 0) {
-                slots.add(new Slot(slot.getNominal(), q));
-                logger.info("Slot {} quantity has changed from {} to {}", slot.getNominal(), qBefore, q);
-            } else {
-                logger.info("Slot {} is removed", slot.getNominal());
-            }
-        }
-    }
-
+    @Override
     public void give(long sum) {
-        if (sum <= 0) {
-            logger.error("Negative sum {} entered", sum);
-            throw new NegativeQuantity();
+        storage.give(sum);
+        logger.info("ATM {}", id);
+
+        var currentBalance = getBalance();
+        for (var entry: limitMap.entrySet()) {
+            if (entry.getValue() > currentBalance) {
+                try {
+                    entry.getKey().onAction(getId(), currentBalance);
+                } catch (RuntimeException ex) {
+                    logger.error("ATM Exception", ex);
+                }
+            }
         }
 
-        var map = prepareGive(sum);
-        doGive(map);
     }
 
+    @Override
     public long getBalance() {
-        return slots.stream()
-            .mapToLong(Slot::getBalance)
-            .sum();
+        return storage.getBalance();
     }
 
-    // for test purpose only
-    public SortedSet<Slot> getSlots() {
-        return Collections.unmodifiableSortedSet(slots);
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    @Override
+    public void online() {
+        isOnline = true;
+        logger.info("ATM {} sets Online", id);
+    }
+
+    @Override
+    public void offline() {
+        isOnline = false;
+        logger.info("ATM {} sets Offline", id);
+    }
+
+    @Override
+    public void addListener(LowBalanceListener listener, long limit) {
+        limitMap.put(listener, limit);
+    }
+
+    @Override
+    public ATMState save() {
+        logger.info("ATM {} savepoint has made", id);
+        return new ATMState(storage.getBanknoteList(), isOnline());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ATMImpl)) return false;
+        ATMImpl atm = (ATMImpl) o;
+        return getId() == atm.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "ATM {" +
+                "id=" + id +
+                ", isOnline=" + isOnline +
+                '}';
     }
 
 }
