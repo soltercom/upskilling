@@ -30,7 +30,8 @@ public class Robot {
                     try {
                         TimeUnit.MILLISECONDS.sleep(STEP_TIME);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.error(e.getMessage());
+                        Thread.currentThread().interrupt();
                     }
                 }
                 logger.info(LEFT);
@@ -47,7 +48,8 @@ public class Robot {
                     try {
                         TimeUnit.MILLISECONDS.sleep(STEP_TIME);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.error(e.getMessage());
+                        Thread.currentThread().interrupt();
                     }
                 }
                 logger.info(RIGHT);
