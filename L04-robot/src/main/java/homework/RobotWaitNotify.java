@@ -39,6 +39,7 @@ public class RobotWaitNotify {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
                 Thread.currentThread().interrupt();
+                return;
             }
         }
     }

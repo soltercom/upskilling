@@ -32,6 +32,7 @@ public class Robot {
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage());
                         Thread.currentThread().interrupt();
+                        return;
                     }
                 }
                 logger.info(LEFT);
@@ -50,6 +51,7 @@ public class Robot {
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage());
                         Thread.currentThread().interrupt();
+                        return;
                     }
                 }
                 logger.info(RIGHT);
