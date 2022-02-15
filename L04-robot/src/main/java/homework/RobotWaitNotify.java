@@ -15,27 +15,23 @@ public class RobotWaitNotify {
     private static final String RIGHT = "RIGHT";
     private String currentLeg = RIGHT;
 
-    private final Object monitor = new Object();
-
     public static void main(String[] args) {
         var robot = new RobotWaitNotify();
         new Thread(() -> robot.move(RIGHT)).start();
         new Thread(() -> robot.move(LEFT)).start();
     }
 
-    private void move(String leg) {
+    private synchronized void move(String leg) {
         for (int i = 0; i < MAX_REPEATING; i++) {
             try {
-                synchronized (monitor) {
-                    while (leg.equals(currentLeg)) {
-                        monitor.wait();
-                    }
-
-                    logger.info(leg);
-                    currentLeg = leg;
-                    TimeUnit.MILLISECONDS.sleep(STEP_TIME);
-                    monitor.notifyAll();
+                while (leg.equals(currentLeg)) {
+                    wait();
                 }
+
+                logger.info(leg);
+                currentLeg = leg;
+                TimeUnit.MILLISECONDS.sleep(STEP_TIME);
+                notifyAll();
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
                 Thread.currentThread().interrupt();
