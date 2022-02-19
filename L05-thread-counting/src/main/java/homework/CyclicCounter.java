@@ -15,9 +15,9 @@ public class CyclicCounter {
     private static final int MIN = 1;
     private static final int MAX = 10;
 
-    private static int currentIndex = 0;
-    private static int counter = 0;
-    private static int sign = 1;
+    private int currentIndex = 0;
+    private int counter = 0;
+    private int sign = 1;
 
     public static void main(String[] args) {
         var counter = new CyclicCounter();
@@ -30,7 +30,7 @@ public class CyclicCounter {
         }
     }
 
-    private synchronized void next() {
+    private void next() {
         counter += sign;
         if ((counter == MIN && sign < 0) || (counter == MAX)) {
             sign = -sign;
@@ -38,7 +38,8 @@ public class CyclicCounter {
     }
 
     private synchronized void count(int index) {
-        for (int i = 0; i < MAX_REPEATING; i++) {
+        //for (int i = 0; i < MAX_REPEATING; i++) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 while (index != currentIndex) {
                     wait();
