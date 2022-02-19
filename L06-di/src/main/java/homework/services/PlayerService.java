@@ -1,6 +1,6 @@
 package homework.services;
 
-import ru.otus.model.Player;
+import homework.model.Player;
 
 public interface PlayerService {
     Player getPlayer();

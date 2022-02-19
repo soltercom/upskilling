@@ -1,8 +1,8 @@
 package homework.services;
 
-import ru.otus.model.Equation;
-import ru.otus.model.GameResult;
-import ru.otus.model.Player;
+import homework.model.Equation;
+import homework.model.GameResult;
+import homework.model.Player;
 
 import java.util.List;
 
