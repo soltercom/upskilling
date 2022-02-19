@@ -1,3 +1,8 @@
+package homework.appcontainer;
+
+import homework.appcontainer.api.AppComponentsContainer;
+import homework.appcontainer.api.AppComponentsContainerConfig;
+
 import java.util.*;
 
 public class AppComponentsContainerImpl implements AppComponentsContainer {
