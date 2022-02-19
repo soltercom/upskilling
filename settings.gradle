@@ -4,4 +4,5 @@ include 'L02-atm'
 include 'L03'
 include 'L04-robot'
 include 'L05-thread-counting'
+include 'L06-di'
 
