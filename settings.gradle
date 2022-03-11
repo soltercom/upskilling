@@ -7,3 +7,7 @@ include 'L05-thread-counting'
 include 'L06-di'
 include 'L07-rest'
 
+include 'L08-starter:logback-starter'
+include 'L08-starter:logback-starter-example'
+
+
