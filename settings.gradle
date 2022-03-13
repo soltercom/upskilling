@@ -10,4 +10,6 @@ include 'L07-rest'
 include 'L08-starter:logback-starter'
 include 'L08-starter:logback-starter-example'
 
+include 'L09-data-jdbc'
+
 
